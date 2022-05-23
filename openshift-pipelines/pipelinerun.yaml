@@ -1,0 +1,28 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-and-push-image
+spec:
+  params:
+    - name: git-url
+      value: https://github.com/thomasberrey/person-service.git
+    - name: git-revision
+      value: main
+    - name: image-name
+      value: quay.io/repository/tberrey/person-service
+    - name: image-username
+      value: tberrey
+    - name: image-password
+      value: password
+    - name: target-namespace
+      value: book-tekton
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: builder-pvc
+    - configMap:
+        name: maven-settings
+      name: maven-settings
+  pipelineRef:
+    name: build-and-push-image
+  serviceAccountName: pipeline
