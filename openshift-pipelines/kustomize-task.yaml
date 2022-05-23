@@ -1,0 +1,45 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kustomize
+  labels:
+    app.kubernetes.io/version: “0.4”
+  annotations:
+    tekton.dev/pipelines.minVersion: “0.12.1”
+    tekton.dev/tags: build-tool
+spec:
+  description: >-
+    This task can be used to execute kustomze build scripts and to apply the
+      changes via oc apply -f
+  workspaces:
+    - name: source
+      description: The workspace holding the cloned and compiled quarkus source.
+  params:
+    - name: kustomize-dir
+      description: Where should kustomize look for kustomization in source?
+    - name: target-namespace
+      description: Where to apply the kustomization to
+    - name: image-name
+      description: Which image to use. Kustomize is taking care of it
+  steps:
+    - name: build
+      image: quay.io/wpernath/kustomize-ubi:latest
+      workingDir: $(workspaces.source.path)
+      script: |
+
+        cd $(workspaces.source.path)/$(params.kustomize-dir)
+
+        DIGEST=$(cat $(workspaces.source.path)/target/jib-image.digest)
+
+        kustomize edit set image
+          quay.io/wpernath/simple-quarkus:latest=$(params.image-name)@$DIGEST
+
+        kustomize build $(workspaces.source.path)/$(params.kustomize-dir) >
+          $(workspaces.source.path)/target/kustomized.yaml
+
+    - name: apply
+      image: ‘image-registry.openshift-image-registry.svc:5000/openshift/cli:latest’
+      workingDir: $(workspaces.source.path)
+      script: |
+        oc apply -f $(workspaces.source.path)/target/kustomized.yaml -n
+          $(params.target-namespace)
