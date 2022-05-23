@@ -84,9 +84,12 @@ spec:
       value: image-registry.openshift-image-registry.svc:5000/openshift/java:latest
     - name: GOALS
       value:
-      - package -Dquarkus.container-image.push=true -Dquarkus.container-image.builder=jib
-        -Dquarkus.container-image.image=$(params.image-name) -Dquarkus.container-image.username=$(params.image-username)
-        -Dquarkus.container-image.password=$(params.image-password)
+        - package
+        - -Dquarkus.container-image.push=true
+        - -Dquarkus.container-image.builder=jib
+        - -Dquarkus.container-image.image=$(params.image-name)
+        - -Dquarkus.container-image.username=$(params.image-username)
+        - -Dquarkus.container-image.password=$(params.image-password)
     - name: PROXY_PROTOCOL
       value: http
     - name: CONTEXT_DIR
