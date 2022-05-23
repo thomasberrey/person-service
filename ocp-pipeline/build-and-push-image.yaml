@@ -1,0 +1,104 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Pipeline","metadata":{"annotations":{},"creationTimestamp":"2022-05-23T17:48:13Z","generation":4,"name":"build-and-push-image","namespace":"book-tekton","resourceVersion":"327567","uid":"1ffabe71-a4e2-46d3-a29d-473754bf8cf1"},"spec":{"params":[{"default":"https://github.com/thomasberrey/person-service.git","name":"git-url","type":"string"},{"default":"main","name":"git-revision","type":"string"},{"default":"quay.io/repository/tberrey/person-service","name":"image-name","type":"string"},{"default":"tberrey","name":"image-username","type":"string"},{"default":"this is a generated hash from quay.io","name":"image-password","type":"string"},{"default":"book-tekton","name":"target-namespace","type":"string"}],"tasks":[{"name":"git-clone","params":[{"name":"url","value":"$(params.git-url)"},{"name":"submodules","value":"true"},{"name":"depth","value":"1"},{"name":"sslVerify","value":"true"},{"name":"deleteExisting","value":"true"},{"name":"verbose","value":"true"},{"name":"gitInitImage","value":"registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:55b0686bbd045c9c77820686318f8a5ff2aff06de566b067f408d27a93bf153c"},{"name":"userHome","value":"/tekton/home"}],"taskRef":{"kind":"ClusterTask","name":"git-clone"},"workspaces":[{"name":"output","workspace":"source"}]},{"name":"package","params":[{"name":"MAVEN_IMAGE","value":"image-registry.openshift-image-registry.svc:5000/openshift/java:latest"},{"name":"GOALS","value":["package"]},{"name":"PROXY_PROTOCOL","value":"http"},{"name":"CONTEXT_DIR","value":"."}],"runAfter":["git-clone"],"taskRef":{"kind":"ClusterTask","name":"maven"},"workspaces":[{"name":"source","workspace":"source"},{"name":"maven-settings","workspace":"source"}]},{"name":"build-and-push-image","params":[{"name":"MAVEN_IMAGE","value":"image-registry.openshift-image-registry.svc:5000/openshift/java:latest"},{"name":"GOALS","value":["package"]},{"name":"PROXY_PROTOCOL","value":"http"},{"name":"CONTEXT_DIR","value":"."}],"runAfter":["package"],"taskRef":{"kind":"ClusterTask","name":"maven"},"workspaces":[{"name":"source","workspace":"source"},{"name":"maven-settings","workspace":"source"}]}],"workspaces":[{"name":"source"}]}}
+  creationTimestamp: "2022-05-23T17:48:13Z"
+  generation: 8
+  name: build-and-push-image
+  namespace: book-tekton
+  resourceVersion: "342107"
+  uid: 1ffabe71-a4e2-46d3-a29d-473754bf8cf1
+spec:
+  params:
+  - default: https://github.com/thomasberrey/person-service.git
+    name: git-url
+    type: string
+  - default: main
+    name: git-revision
+    type: string
+  - default: quay.io/repository/tberrey/person-service
+    name: image-name
+    type: string
+  - default: tberrey
+    name: image-username
+    type: string
+  - default: this is a generated hash from quay.io
+    name: image-password
+    type: string
+  - default: book-tekton
+    name: target-namespace
+    type: string
+  tasks:
+  - name: git-clone
+    params:
+    - name: url
+      value: $(params.git-url)
+    - name: submodules
+      value: "true"
+    - name: depth
+      value: "1"
+    - name: sslVerify
+      value: "true"
+    - name: deleteExisting
+      value: "true"
+    - name: verbose
+      value: "true"
+    - name: gitInitImage
+      value: registry.redhat.io/openshift-pipelines/pipelines-git-init-rhel8@sha256:55b0686bbd045c9c77820686318f8a5ff2aff06de566b067f408d27a93bf153c
+    - name: userHome
+      value: /tekton/home
+    - name: revision
+      value: $(params.git-revision)
+    taskRef:
+      kind: ClusterTask
+      name: git-clone
+    workspaces:
+    - name: output
+      workspace: shared-workspace
+  - name: package
+    params:
+    - name: MAVEN_IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/openshift/java:latest
+    - name: GOALS
+      value:
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    - name: CONTEXT_DIR
+      value: .
+    runAfter:
+    - git-clone
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    - name: maven-settings
+      workspace: maven-settings
+  - name: build-and-push-image
+    params:
+    - name: MAVEN_IMAGE
+      value: image-registry.openshift-image-registry.svc:5000/openshift/java:latest
+    - name: GOALS
+      value:
+      - package
+    - name: PROXY_PROTOCOL
+      value: http
+    - name: CONTEXT_DIR
+      value: .
+    runAfter:
+    - package
+    taskRef:
+      kind: ClusterTask
+      name: maven
+    workspaces:
+    - name: source
+      workspace: shared-workspace
+    - name: maven-settings
+      workspace: maven-settings
+  workspaces:
+  - name: shared-workspace
+  - name: maven-settings
