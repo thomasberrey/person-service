@@ -85,6 +85,7 @@ spec:
     - name: GOALS
       value:
         - package
+        - -DskipTests
         - -Dquarkus.container-image.push=true
         - -Dquarkus.container-image.builder=jib
         - -Dquarkus.container-image.image=$(params.image-name)
