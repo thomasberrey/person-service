@@ -8,6 +8,8 @@ spec:
       value: https://github.com/thomasberrey/person-service.git
     - name: git-revision
       value: main
+    - name: context-dir
+      value: the-source
     - name: image-name
       value: quay.io/repository/tberrey/person-service
     - name: image-username

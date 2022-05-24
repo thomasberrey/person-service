@@ -1,8 +1,5 @@
 #!/bin/bash
 
-crc delete
-crc start
-
 read -p "Install the OpenShift Pipelines Operator..."
 
 oc new-project book-tekton
