@@ -21,7 +21,7 @@ public class TraceIdResponseInjector implements ContainerResponseFilter {
 
     @Override
     public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext) throws IOException {
-        final SpanContext spanContext = tracer.scopeManager().active().span().context();
+        final SpanContext spanContext = tracer.scopeManager().activeSpan().context();
         if (spanContext instanceof JaegerSpanContext) {
             responseContext.getHeaders().add(TRACE_ID, ((JaegerSpanContext) spanContext).getTraceId());
         }
