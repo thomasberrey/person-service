@@ -1,20 +1,36 @@
 package org.wanja.demo;
 
+import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.jboss.logging.Logger;
+import io.jaegertracing.internal.JaegerSpanContext;
+import io.opentracing.SpanContext;
+import io.opentracing.Tracer;
+import io.smallrye.opentracing.contrib.resolver.TracerResolver;
 
 @Path("/trace")
 public class TracedResource {
 
-    private static final Logger LOG = Logger.getLogger(PersonResource.class);
+    @Inject
+    Tracer tracer;
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String hello() {
-        LOG.info("This is the person service"); 
-        return "This is the person service";
+        String traceId = "none";
+
+        final SpanContext spanContext = tracer.scopeManager().activeSpan().context();
+        if (spanContext instanceof JaegerSpanContext) {
+            traceId = ((JaegerSpanContext) spanContext).getTraceId();
+        }
+
+        TracerResolver.resolveTracer().activeSpan().setBaggageItem("traceId", traceId);
+        TracerResolver.resolveTracer().activeSpan().setTag("traceId", traceId);
+        TracerResolver.resolveTracer().activeSpan().setTag("tagMessage", "this is an awesome message");
+
+        return "Here is the traceId = " + traceId;
     }
+
 }
