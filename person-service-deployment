@@ -9,7 +9,7 @@ oc new-app postgresql-persistent \
 -p DATABASE_SERVICE_NAME=personserver
 
 3. Create the postgresql secret
-oc apply -f target/kubernetes/postresql_secret.yaml
+oc apply -f postresql_secret.yaml
 
 4. Deploy person-service Quarkus microservice
 oc apply -f target/kubernetes/openshift.yml
