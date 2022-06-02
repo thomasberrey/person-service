@@ -6,7 +6,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
 
-@Path("/person")
+@Path("/trace")
 public class TracedResource {
 
     private static final Logger LOG = Logger.getLogger(PersonResource.class);
