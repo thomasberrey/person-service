@@ -26,9 +26,9 @@ public class TracedResource {
             traceId = ((JaegerSpanContext) spanContext).getTraceId();
         }
 
-        TracerResolver.resolveTracer().activeSpan().setBaggageItem("traceId", traceId);
         TracerResolver.resolveTracer().activeSpan().setTag("traceId", traceId);
         TracerResolver.resolveTracer().activeSpan().setTag("tagMessage", "this is an awesome message");
+        TracerResolver.resolveTracer().activeSpan().setBaggageItem("traceId", traceId);
 
         return "Here is the traceId = " + traceId;
     }
